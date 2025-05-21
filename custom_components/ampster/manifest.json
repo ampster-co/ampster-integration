@@ -5,5 +5,5 @@
   "documentation": "https://github.com/alexhowarth/ampster-integration",
   "requirements": ["aiohttp"],
   "dependencies": [],
-  "codeowners": ["@yourusername"]
+  "codeowners": ["@alexhowarth"]
 }

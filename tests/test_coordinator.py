@@ -1,6 +1,6 @@
 import pytest
 from homeassistant.core import HomeAssistant
-from custom_components.ampster_integration.coordinator import AmpsterDataUpdateCoordinator
+from custom_components.ampster.coordinator import AmpsterDataUpdateCoordinator
 
 import asyncio
 

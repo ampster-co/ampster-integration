@@ -1,7 +1,7 @@
 {
   "domain": "ampster",
   "name": "Ampster Integration",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "documentation": "https://github.com/alexhowarth/ampster-integration",
   "requirements": ["aiohttp"],
   "dependencies": [],

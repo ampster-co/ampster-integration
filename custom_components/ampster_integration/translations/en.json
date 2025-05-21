@@ -1,0 +1,29 @@
+{
+  "title": "Ampster Home Integration",
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ampster Home Integration Options"
+      }
+    }
+  },
+  "step": {
+    "user": {
+      "title": "Ampster Home Integration"
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "description": "Configure your Ampster integration."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_period_all_in_price": {
+        "name": "Current All-in Price"
+      }
+    }
+  }
+}

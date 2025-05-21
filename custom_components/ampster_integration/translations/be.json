@@ -1,0 +1,29 @@
+{
+  "title": "Ampster Home Integration",
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ampster Home Integration Opties"
+      }
+    }
+  },
+  "step": {
+    "user": {
+      "title": "Ampster Home Integration"
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "description": "Configureer uw Ampster-integratie."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_period_all_in_price": {
+        "name": "Huidige All-in Prijs"
+      }
+    }
+  }
+}

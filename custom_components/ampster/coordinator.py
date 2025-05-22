@@ -4,11 +4,21 @@ Ampster DataUpdateCoordinator for periodic JSON fetching.
 import logging
 from datetime import timedelta
 import aiohttp
+import pytz
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.helpers.event import async_track_time_change
 from .const import DOMAIN, DEFAULT_COUNTRY, DEFAULT_MINUTE, BASE_URL, SUPPORTED_COUNTRIES
 
 _LOGGER = logging.getLogger(__name__)
+
+# Cache timezone objects at module level to avoid blocking calls in the event loop
+COUNTRY_TZ = {
+    "NL": pytz.timezone("Europe/Amsterdam"),
+    "BE": pytz.timezone("Europe/Brussels"),
+    "FR": pytz.timezone("Europe/Paris"),
+    "AT": pytz.timezone("Europe/Vienna"),
+}
+DEFAULT_TZ = pytz.UTC
 
 class AmpsterDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, url: str = None, country_prefix: str = None, minute: int = DEFAULT_MINUTE):

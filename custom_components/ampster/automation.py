@@ -13,6 +13,8 @@ from homeassistant.core import HomeAssistant
 import logging
 
 from .const import DOMAIN
+# Import the cached timezone objects
+from .coordinator import COUNTRY_TZ, DEFAULT_TZ
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     coordinator = hass.data[DOMAIN][entry.entry_id]
@@ -29,33 +31,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             current_period = data.get("current_period")
             _LOGGER.info(f"[Ampster] Data fetched. Timestamp: {timestamp}, Country: {country}, Current Period: {current_period}")
 
-            # Check if current_period is within the current hour in the country's timezone
             import datetime
-            import pytz
-
-            # Map country to timezone (expand as needed)
-            country_tz = {
-                "NL": "Europe/Amsterdam",
-                "BE": "Europe/Brussels",
-                "FR": "Europe/Paris",
-                "AT": "Europe/Vienna",
-            }
-            tz_name = country_tz.get(country, "UTC")
-            tz = pytz.timezone(tz_name)
+            # Use cached timezone objects to avoid blocking the event loop
+            tz = COUNTRY_TZ.get(country, DEFAULT_TZ)
 
             now = datetime.datetime.now(tz)
-            # current_period is expected to be an ISO string
             try:
                 period_dt = datetime.datetime.fromisoformat(current_period)
                 if period_dt.tzinfo is None:
-                    # Assume it's in the correct timezone if no tzinfo
                     period_dt = tz.localize(period_dt)
-                # Check if year, month, day, hour match
                 if (period_dt.year == now.year and period_dt.month == now.month and
                     period_dt.day == now.day and period_dt.hour == now.hour):
-                    _LOGGER.info(f"[Ampster] Data is current (current_period: {period_dt}, now: {now} in {tz_name})")
+                    _LOGGER.info(f"[Ampster] Data is current (current_period: {period_dt}, now: {now} in {tz})")
                 else:
-                    _LOGGER.info(f"[Ampster] Data is NOT current (current_period: {period_dt}, now: {now} in {tz_name})")
+                    _LOGGER.info(f"[Ampster] Data is NOT current (current_period: {period_dt}, now: {now} in {tz})")
             except Exception as e:
                 _LOGGER.debug(f"[Ampster] Could not parse or compare current_period: {e}")
         else:

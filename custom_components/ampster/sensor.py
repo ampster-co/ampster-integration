@@ -55,7 +55,4 @@ class AmpsterSensor(SensorEntity):
             return {"full_value": value}
         return {}
 
-    async def async_update(self):
-        await self.coordinator.async_request_refresh()
-
 # To disable exposing sensors, remove or comment out this file and its setup in __init__.py

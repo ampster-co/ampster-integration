@@ -4,9 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
 
 from .automation import async_setup_entry as async_setup_automation_entry
-from .button import async_setup_entry as async_setup_button_entry
 from .coordinator import AmpsterDataUpdateCoordinator
-from .sensor import async_setup_entry as async_setup_sensor_entry
 
 DOMAIN = "ampster"
 
@@ -23,7 +21,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = AmpsterDataUpdateCoordinator(hass, country_prefix=country_prefix, minute=minute)
     await coordinator.async_config_entry_first_refresh()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
-    # Use standard platform forwarding for button and sensor
+    # Use standard platform forwarding for button and sensor only
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     # Set up the automation logic to control devices based on data
     await async_setup_automation_entry(hass, entry)

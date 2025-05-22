@@ -23,12 +23,37 @@ class AmpsterSensor(SensorEntity):
         self._key = key
         self._attr_name = f"Ampster {key}"
         self._attr_unique_id = f"ampster_{key}"
-        self._attr_native_value = value
+        # Only set the state to a short value (max 255 chars)
+        if isinstance(value, (str, int, float)) and len(str(value)) <= 255:
+            self._attr_native_value = value
+        else:
+            # For long or complex values, set a summary or count
+            if isinstance(value, dict):
+                self._attr_native_value = f"dict ({len(value)})"
+            elif isinstance(value, list):
+                self._attr_native_value = f"list ({len(value)})"
+            else:
+                self._attr_native_value = str(value)[:255]
+        self._attr_extra_state_attributes = {"full_value": value} if isinstance(value, (dict, list)) else {}
 
     @property
     def native_value(self):
-        # Update value from coordinator data
-        return self.coordinator.data.get(self._key)
+        value = self.coordinator.data.get(self._key)
+        if isinstance(value, (str, int, float)) and len(str(value)) <= 255:
+            return value
+        elif isinstance(value, dict):
+            return f"dict ({len(value)})"
+        elif isinstance(value, list):
+            return f"list ({len(value)})"
+        else:
+            return str(value)[:255]
+
+    @property
+    def extra_state_attributes(self):
+        value = self.coordinator.data.get(self._key)
+        if isinstance(value, (dict, list)):
+            return {"full_value": value}
+        return {}
 
     async def async_update(self):
         await self.coordinator.async_request_refresh()

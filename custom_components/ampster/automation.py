@@ -10,7 +10,6 @@ This automation is triggered whenever new data is fetched (on the hour at the co
 """
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.typing import HomeAssistantType
 
 from .const import DOMAIN
 
@@ -49,7 +48,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         #             )
 
     # Listen for coordinator data updates
-    coordinator.async_add_listener(handle_data_update)
+    def _listener():
+        hass.async_create_task(handle_data_update())
+    coordinator.async_add_listener(_listener)
 
     # Optionally, call once at startup
     # await handle_data_update()

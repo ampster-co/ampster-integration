@@ -235,14 +235,8 @@ To see detailed logs for the Ampster integration, you can enable debug logging i
 
 ### Steps to Enable Debug Logging
 
-1. **Install the File Editor Add-on (if needed):**
-   - Go to **Settings → Add-ons → Add-on Store** in Home Assistant.
-   - Search for **File Editor** and install it.
-   - Start the File Editor add-on.
-   - Open the File Editor from the sidebar.
-
-2. **Edit `configuration.yaml`:**
-   - In the File Editor, open `configuration.yaml` (usually found in the root of your Home Assistant config folder).
+1. **Edit `configuration.yaml`:**
+   - Open `configuration.yaml` (usually found in the root of your Home Assistant config folder).
    - Add the following section at the end of the file:
      ```yaml
      logger:
@@ -252,30 +246,12 @@ To see detailed logs for the Ampster integration, you can enable debug logging i
      ```
    - Save the file.
 
-3. **Restart Home Assistant:**
+2. **Restart Home Assistant:**
    - Go to **Settings → System → Restart** to apply the changes.
 
 After restarting, detailed debug logs for the Ampster integration will appear in your Home Assistant logs. This will help you see when data is fetched, configuration details, and any issues that arise.
 
-## Editing configuration.yaml in Home Assistant
-
-To enable debug logging or make other advanced configuration changes, you may need to edit your `configuration.yaml` file. Here’s how to do it using the Home Assistant UI:
-
-1. **Install the File Editor Add-on (if needed):**
-   - Go to **Settings → Add-ons → Add-on Store** in Home Assistant.
-   - Search for **File Editor** and install it.
-   - Start the File Editor add-on.
-   - Open the File Editor from the sidebar.
-
-2. **Open and Edit `configuration.yaml`:**
-   - In the File Editor, open `configuration.yaml` (usually found in the root of your Home Assistant config folder).
-   - Add or edit the configuration you need (for example, the logger section for debug logging).
-   - Save the file.
-
-3. **Restart Home Assistant:**
-   - Go to **Settings → System → Restart** to apply your changes.
-
-**Note:** Editing `configuration.yaml` is required for some advanced features and troubleshooting. Always make a backup before making major changes.
+> **Tip:** You can use the [File Editor add-on](https://www.home-assistant.io/integrations/file_editor/) to edit `configuration.yaml` directly from the Home Assistant UI.
 
 ## Manual Update Button: Where to Find It
 

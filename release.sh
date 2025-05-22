@@ -55,7 +55,8 @@ TAG="$2"
 # Stage all changes
 git add .
 
-git commit -m "$COMMIT_MSG"
+# Commit only if there are staged changes
+git diff --cached --quiet || git commit -m "$COMMIT_MSG"
 
 git push origin main
 

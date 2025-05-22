@@ -16,8 +16,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Ampster from a config entry."""
-    country_prefix = entry.data.get("country_prefix")
-    minute = entry.data.get("minute", 2)
+    # Prefer options over data for config values
+    country_prefix = entry.options.get("country_prefix") if entry.options.get("country_prefix") is not None else entry.data.get("country_prefix")
+    minute = entry.options.get("minute") if entry.options.get("minute") is not None else entry.data.get("minute", 2)
     coordinator = AmpsterDataUpdateCoordinator(hass, country_prefix=country_prefix, minute=minute)
     await coordinator.async_config_entry_first_refresh()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator

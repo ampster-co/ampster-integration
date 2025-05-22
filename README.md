@@ -144,6 +144,63 @@ You can access the sensor values in Home Assistant templates:
 {{ states('sensor.ampster_current_period_all_in_price') }}
 ```
 
+---
+
+## Accessing Ampster Data in Home Assistant Templates
+
+The Ampster integration exposes data as Home Assistant sensor entities (e.g., `sensor.ampster_country`). You can use these sensors in automations, dashboards, scripts, and templates.
+
+### Accessing Sensor Values in Templates
+
+To get the value of a sensor in a template, use:
+
+```jinja
+{{ states('sensor.ampster_country') }}
+```
+
+This returns the current value (state) of the `sensor.ampster_country` entity as a string.
+
+### Accessing Sensor Attributes
+
+If your sensor exposes additional attributes (such as a dictionary or list), use:
+
+```jinja
+{{ state_attr('sensor.ampster_country', 'full_value') }}
+```
+
+Replace `'full_value'` with the attribute name you want to access.
+
+### Example Usage in Automations
+
+You can use these sensors in Home Assistant automations. For example:
+
+```yaml
+automation:
+  - alias: 'Notify country change'
+    trigger:
+      - platform: state
+        entity_id: sensor.ampster_country
+    action:
+      - service: notify.notify
+        data:
+          message: "Ampster country changed to {{ states('sensor.ampster_country') }}"
+```
+
+### Example Usage in Lovelace Dashboards
+
+Add the sensor to an entities card:
+
+```yaml
+entities:
+  - entity: sensor.ampster_country
+```
+
+### Troubleshooting
+- If you see `unknown` or `unavailable`, the entity may not be initialized yet or there may be a data issue.
+- Use Developer Tools → States in Home Assistant to see all available entities and their current values.
+
+---
+
 ## Default Configuration and Where to Change It
 
 - **Base URL for Data Fetching**: The default base URL for fetching electricity price data is set in `coordinator.py`:

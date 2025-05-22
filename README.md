@@ -268,3 +268,65 @@ To find and use the manual update button:
 You can also add this button to your dashboard for quick access, or use it in automations and scripts.
 
 ---
+
+## Developing with the Home Assistant VS Code Add-on
+
+For the fastest development workflow, use the Visual Studio Code (VS Code) add-on in Home Assistant. This allows you to edit your integration files directly in the Home Assistant environment and reload changes instantly.
+
+### Steps:
+
+1. **Install the VS Code Add-on:**
+   - In Home Assistant, go to **Settings → Add-ons → Add-on Store**.
+   - Search for "VS Code" or "Visual Studio Code" and install it.
+   - Start the add-on and open it from the sidebar.
+
+2. **Open Your Integration Folder:**
+   - In the VS Code add-on, navigate to `/config/custom_components/ampster/`.
+   - Edit your Python files directly here. Changes are saved immediately in your Home Assistant environment.
+
+3. **Reload the Integration:**
+   - After saving changes, go to **Settings → Devices & Services → Integrations → Ampster → ... (menu) → Reload**.
+   - This reloads your integration without restarting Home Assistant. (A full restart is only needed if you change dependencies or `manifest.json`.)
+
+4. **Use Logging for Debugging:**
+   - Add `import logging` and use `_LOGGER.debug(...)` in your code.
+   - Enable debug logging as described in the Debug Logging section above.
+   - View logs in **Developer Tools → Logs** in the Home Assistant UI.
+
+**Tip:** You can also use the VS Code add-on to edit `configuration.yaml` and other Home Assistant files.
+
+---
+
+## Local Testing & Development Requirements
+
+To run and develop tests for this integration locally, you need to install the development requirements and the Home Assistant package.
+
+### 1. Install Development Requirements
+
+In your project root, run:
+
+```zsh
+pip install -r requirements-dev.txt
+```
+
+This will install `pytest`, `pytest-asyncio`, and `aiohttp` for running and writing tests.
+
+### 2. Install Home Assistant Package (Required for Tests)
+
+The test suite imports Home Assistant modules. You must install the `homeassistant` package in your environment:
+
+```zsh
+pip install homeassistant
+```
+
+If you see an error like `ModuleNotFoundError: No module named "homeassistant"`, this step is required.
+
+### 3. Running Tests
+
+To run all tests:
+
+```zsh
+pytest tests/
+```
+
+This will execute all test files in the `tests/` directory.

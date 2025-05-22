@@ -19,7 +19,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Prefer options over data for config values
     country_prefix = entry.options.get("country_prefix") if entry.options.get("country_prefix") is not None else entry.data.get("country_prefix")
     minute = entry.options.get("minute") if entry.options.get("minute") is not None else entry.data.get("minute", 2)
-    coordinator = AmpsterDataUpdateCoordinator(hass, country_prefix=country_prefix, minute=minute)
+    base_url = entry.options.get("base_url") if entry.options.get("base_url") is not None else entry.data.get("base_url", None)
+    from .const import DEFAULT_BASE_URL
+    if not base_url:
+        base_url = DEFAULT_BASE_URL
+    coordinator = AmpsterDataUpdateCoordinator(hass, country_prefix=country_prefix, minute=minute, url=None, base_url=base_url)
     await coordinator.async_config_entry_first_refresh()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     # Use standard platform forwarding for button and sensor only

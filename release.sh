@@ -30,16 +30,16 @@ git push origin main
 if [ -z "$TAG" ]; then
   LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n1)
   if [[ $LATEST_TAG =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-    MAJOR=${BASH_REMATCH[1]}
-    MINOR=${BASH_REMATCH[2]}
-    PATCH=${BASH_REMATCH[3]}
+    MAJOR=$(echo $LATEST_TAG | sed -E 's/v([0-9]+)\..*/\1/')
+    MINOR=$(echo $LATEST_TAG | sed -E 's/v[0-9]+\.([0-9]+)\..*/\1/')
+    PATCH=$(echo $LATEST_TAG | sed -E 's/v[0-9]+\.[0-9]+\.([0-9]+)/\1/')
     NEXT_PATCH=$((PATCH+1))
     NEXT_TAG="v${MAJOR}.${MINOR}.${NEXT_PATCH}"
   else
     NEXT_TAG="v1.0.0"
   fi
   echo "Latest tag: $LATEST_TAG"
-  echo -n "Enter version tag [${NEXT_TAG}]: "
+  printf "Enter version tag [%s]: " "$NEXT_TAG"
   read USER_TAG
   if [ -z "$USER_TAG" ]; then
     TAG="$NEXT_TAG"

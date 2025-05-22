@@ -30,7 +30,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload an Ampster config entry."""
+    # Unload platforms first
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    # Remove coordinator and shut it down
     coordinator = hass.data[DOMAIN].pop(entry.entry_id, None)
     if coordinator:
         await coordinator.async_shutdown()
-    return True
+    return unload_ok

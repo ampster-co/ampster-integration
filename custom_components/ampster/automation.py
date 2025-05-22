@@ -19,6 +19,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     async def handle_data_update():
         data = coordinator.data
+        if data:
+            timestamp = data.get("timestamp")
+            if timestamp:
+                hass.components.logger.logger.info(
+                    f"[Ampster] Data fetched. Timestamp: {timestamp}"
+                )
+            else:
+                hass.components.logger.logger.info(
+                    "[Ampster] Data fetched, but no 'timestamp' key found in data!"
+                )
         # Example: If the current all-in price is below 0.20 EUR/kWh, turn on the inverter
         # Otherwise, turn it off
         # Uncomment and adapt the logic below for your setup:
@@ -43,5 +53,3 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     # Optionally, call once at startup
     # await handle_data_update()
-
-# To use: Uncomment and adapt the logic above, then import and call async_setup_entry from __init__.py

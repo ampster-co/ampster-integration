@@ -330,3 +330,57 @@ pytest tests/
 ```
 
 This will execute all test files in the `tests/` directory.
+
+---
+
+## Integration Branding (Logo & Icon in Home Assistant UI)
+
+To have your integration's logo and icon appear in the Home Assistant user interface (e.g., in the integrations list and on the integration card), you need to submit your branding assets to the official Home Assistant Brands repository.
+
+The `.branding/` folder method within the custom component directory is **not** used for custom integration branding.
+
+### Process for Submitting Branding:
+
+1.  **Prepare Your Assets:**
+    *   **`logo.png`**: A 512x512 pixel PNG image, ideally with a transparent background. This is the main logo for your integration.
+    *   **`icon.png`**: A 146x146 pixel PNG image, also ideally with a transparent background. This icon is used in smaller UI elements. The Home Assistant team might have specific guidelines or tools for generating the icon from your logo to ensure it fits the safe zone.
+
+2.  **Fork the Repository:**
+    *   Go to the [Home Assistant Brands GitHub repository](https://github.com/home-assistant/brands) and fork it to your own GitHub account.
+
+3.  **Add Your Branding Files:**
+    *   In your forked repository, navigate to the `custom_integrations/` directory.
+    *   Create a new folder named after your integration's domain. For this integration, the domain is `ampster`. So, you would create `custom_integrations/ampster/`.
+    *   Place your `logo.png` and `icon.png` files inside this `custom_integrations/ampster/` directory.
+
+4.  **(Optional) Add `brand.json`:**
+    *   If your integration has specific product names or connects to a cloud service that has distinct branding, you might need to add a `brand.json` file in the same `custom_integrations/ampster/` directory. This file provides metadata about your brand.
+    *   Example `brand.json`:
+        ```json
+        {
+          "name": "Ampster",
+          "domain": "ampster",
+          "integrations": {
+            "ampster": [
+              "https://www.example.com" // Link to your product/service if applicable
+            ]
+          }
+        }
+        ```
+        Consult the `home-assistant/brands` repository's `README` or contribution guidelines for the exact structure and requirements for `brand.json`.
+
+5.  **Submit a Pull Request (PR):**
+    *   Commit your changes (the new folder and image files) to your forked repository.
+    *   Go back to the original [Home Assistant Brands GitHub repository](https://github.com/home-assistant/brands) and create a new Pull Request from your fork.
+    *   Clearly describe your integration and the branding you are adding.
+
+6.  **Review and Merge:**
+    *   The Home Assistant team will review your PR. They might request changes to your images or `brand.json` to meet their guidelines.
+    *   Once approved, your PR will be merged.
+
+7.  **Branding Appears in Home Assistant:**
+    *   After your branding is merged into the `home-assistant/brands` repository, it will be included in a future Home Assistant release. Users will then see your logo and icon in their Home Assistant UI when they use your integration.
+
+**Important Notes:**
+*   Always check the latest contribution guidelines in the `home-assistant/brands` repository, as the process or requirements might change.
+*   The `.branding/` directory that might have been mentioned in older documentation or for different purposes should be removed from your `custom_components/ampster/` directory as it is not used for this type of branding.

@@ -21,10 +21,11 @@ COUNTRY_TZ = {
 DEFAULT_TZ = pytz.UTC
 
 class AmpsterDataUpdateCoordinator(DataUpdateCoordinator):
-    def __init__(self, hass, url: str = None, country_prefix: str = None, minute: int = DEFAULT_MINUTE):
+    def __init__(self, hass, url: str = None, country_prefix: str = None, minute: int = DEFAULT_MINUTE, base_url: str = None):
         self.hass = hass
         self.country_prefix = country_prefix
         self.minute = minute
+        self.base_url = base_url or BASE_URL
         # Determine country prefix from locale if not provided
         if not self.country_prefix:
             lang = (hass.config.language or "en").lower()
@@ -36,7 +37,7 @@ class AmpsterDataUpdateCoordinator(DataUpdateCoordinator):
                 "at": "AT",
             }
             self.country_prefix = lang_map.get(lang, DEFAULT_COUNTRY)
-        self.url = url or f"{BASE_URL}{self.country_prefix}.json"
+        self.url = url or f"{self.base_url}{self.country_prefix}.json"
         super().__init__(
             hass,
             _LOGGER,

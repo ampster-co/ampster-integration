@@ -1,9 +1,10 @@
 {
   "domain": "ampster",
   "name": "Ampster Integration",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "documentation": "https://github.com/alexhowarth/ampster-integration",
   "requirements": ["aiohttp"],
   "dependencies": [],
-  "codeowners": ["@alexhowarth"]
+  "codeowners": ["@alexhowarth"],
+  "config_flow": true
 }

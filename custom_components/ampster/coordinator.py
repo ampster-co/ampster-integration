@@ -51,6 +51,7 @@ class AmpsterDataUpdateCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"Error fetching data: {err}")
 
     async def _scheduled_refresh(self, now):
+        _LOGGER.info(f"[Ampster] Scheduled refresh fired at {now.isoformat()} (should be every hour at minute={self.minute})")
         await self.async_request_refresh()
 
     async def async_shutdown(self):

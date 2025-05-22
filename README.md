@@ -173,3 +173,122 @@ To add custom branding to your integration in the Home Assistant UI:
 - For more details, see: https://developers.home-assistant.io/docs/integration_custom_branding/
 
 If these images are not provided, Home Assistant will display a default puzzle piece icon for your integration.
+
+## Automating Commit, Tag, and GitHub Release from the CLI
+
+You can automate the process of committing, tagging, and creating a GitHub release for this integration using the command line.
+
+### 1. Commit and Tag (Standard Git)
+
+```zsh
+git add .
+git commit -m "Your commit message"
+git push origin main
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+Replace `vX.Y.Z` with your desired version number (e.g., `v1.0.9`).
+
+### 2. Create a GitHub Release via CLI
+
+#### Option A: Using the GitHub CLI (`gh`)
+If you have the [GitHub CLI](https://cli.github.com/) (`gh`) installed, you can create a release with:
+
+```zsh
+gh release create vX.Y.Z --title "vX.Y.Z" --notes "Describe your changes here"
+```
+This will create a release for tag `vX.Y.Z` with the given title and notes.
+
+#### Option B: Using cURL (GitHub API)
+If you don’t have `gh`, you can use the GitHub API with `curl` (requires a GitHub token):
+
+```zsh
+curl -X POST \
+  -H "Authorization: token YOUR_GITHUB_TOKEN" \
+  -d '{"tag_name": "vX.Y.Z", "name": "vX.Y.Z", "body": "Describe your changes here", "draft": false, "prerelease": false}' \
+  https://api.github.com/repos/alexhowarth/ampster-integration/releases
+```
+Replace `YOUR_GITHUB_TOKEN` with a personal access token.
+
+---
+
+**Summary:**
+- Use `git` for commit and tag.
+- Use `gh release create ...` for a release (recommended).
+- You can script all of this for full automation!
+
+## HACS: Only Tagged Releases Are Available
+
+When using HACS (Home Assistant Community Store) to install this integration, only versions that have both a git tag and a published GitHub release are available for installation or update. Commits on the main branch or untagged code will not appear in HACS.
+
+**To make a new version available in HACS:**
+1. Commit and push your changes to the main branch.
+2. Create a new git tag (e.g., `v1.0.9`) and push it to GitHub.
+3. Create a GitHub release for that tag (see the section above on automating this process).
+4. HACS will detect the new release and make it available for installation or update.
+
+If you do not see your latest changes in HACS, ensure you have created both a tag and a release for your desired version.
+
+## Enabling Debug Logging for the Integration
+
+To see detailed logs for the Ampster integration, you can enable debug logging in Home Assistant. This is useful for troubleshooting and development.
+
+### Steps to Enable Debug Logging
+
+1. **Install the File Editor Add-on (if needed):**
+   - Go to **Settings → Add-ons → Add-on Store** in Home Assistant.
+   - Search for **File Editor** and install it.
+   - Start the File Editor add-on.
+   - Open the File Editor from the sidebar.
+
+2. **Edit `configuration.yaml`:**
+   - In the File Editor, open `configuration.yaml` (usually found in the root of your Home Assistant config folder).
+   - Add the following section at the end of the file:
+     ```yaml
+     logger:
+       default: info
+       logs:
+         custom_components.ampster: debug
+     ```
+   - Save the file.
+
+3. **Restart Home Assistant:**
+   - Go to **Settings → System → Restart** to apply the changes.
+
+After restarting, detailed debug logs for the Ampster integration will appear in your Home Assistant logs. This will help you see when data is fetched, configuration details, and any issues that arise.
+
+## Editing configuration.yaml in Home Assistant
+
+To enable debug logging or make other advanced configuration changes, you may need to edit your `configuration.yaml` file. Here’s how to do it using the Home Assistant UI:
+
+1. **Install the File Editor Add-on (if needed):**
+   - Go to **Settings → Add-ons → Add-on Store** in Home Assistant.
+   - Search for **File Editor** and install it.
+   - Start the File Editor add-on.
+   - Open the File Editor from the sidebar.
+
+2. **Open and Edit `configuration.yaml`:**
+   - In the File Editor, open `configuration.yaml` (usually found in the root of your Home Assistant config folder).
+   - Add or edit the configuration you need (for example, the logger section for debug logging).
+   - Save the file.
+
+3. **Restart Home Assistant:**
+   - Go to **Settings → System → Restart** to apply your changes.
+
+**Note:** Editing `configuration.yaml` is required for some advanced features and troubleshooting. Always make a backup before making major changes.
+
+## Manual Update Button: Where to Find It
+
+When the Ampster integration is installed, it creates a manual update button entity in Home Assistant. This button allows you to trigger a data fetch on demand, outside of the scheduled updates.
+
+To find and use the manual update button:
+
+1. Go to **Settings → Devices & Services** in the Home Assistant UI.
+2. Click on the **Entities** tab at the top of the page.
+3. In the search bar, type `ampster` to filter all Ampster-related entities.
+4. Look for an entity named something like `button.ampster_update` (the exact name may vary depending on your setup).
+5. Click the button entity to open its details. You can then press the button directly from the UI to manually trigger a data update.
+
+You can also add this button to your dashboard for quick access, or use it in automations and scripts.
+
+---

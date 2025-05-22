@@ -47,6 +47,7 @@ class AmpsterDataUpdateCoordinator(DataUpdateCoordinator):
                     response.raise_for_status()
                     return await response.json()
         except Exception as err:
+            _LOGGER.error(f"[Ampster] Data fetch failed: {err}")
             raise UpdateFailed(f"Error fetching data: {err}")
 
     async def _scheduled_refresh(self, now):

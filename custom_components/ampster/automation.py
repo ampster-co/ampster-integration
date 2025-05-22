@@ -22,30 +22,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         data = coordinator.data
         if data:
             timestamp = data.get("timestamp")
-            if timestamp:
-                _LOGGER.info(f"[Ampster] Data fetched. Timestamp: {timestamp}")
-            else:
-                _LOGGER.info("[Ampster] Data fetched, but no 'timestamp' key found in data!")
-        # Example: If the current all-in price is below 0.20 EUR/kWh, turn on the inverter
-        # Otherwise, turn it off
-        # Uncomment and adapt the logic below for your setup:
-        # if data:
-        #     current_price = data.get("current_period_all_in_price")
-        #     if current_price is not None:
-        #         if current_price < 0.20:
-        #             await hass.services.async_call(
-        #                 'switch', 'turn_on',
-        #                 { 'entity_id': 'switch.inverter' },
-        #                 blocking=True
-        #             )
-        #         else:
-        #             await hass.services.async_call(
-        #                 'switch', 'turn_off',
-        #                 { 'entity_id': 'switch.inverter' },
-        #                 blocking=True
-        #             )
+            country = data.get("country")
+            current_period = data.get("current_period")
+            _LOGGER.info(f"[Ampster] Data fetched. Timestamp: {timestamp}, Country: {country}, Current Period: {current_period}")
+        else:
+            _LOGGER.info("[Ampster] Data fetched, but no data found!")
 
-    # Listen for coordinator data updates
+    # Log when fetching data, with URL and config
+    _LOGGER.info(f"[Ampster] Fetching data from {coordinator.url} (country_prefix={coordinator.country_prefix}, minute={coordinator.minute})")
+
     def _listener():
         hass.async_create_task(handle_data_update())
     coordinator.async_add_listener(_listener)

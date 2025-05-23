@@ -10,11 +10,16 @@ from .const import DOMAIN
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    # Expose all top-level keys in the fetched JSON as sensors
     entities = []
+
+    # Expose all top-level keys in the fetched JSON as sensors
     if coordinator.data:
         for key, value in coordinator.data.items():
             entities.append(AmpsterSensor(coordinator, key, value))
+    
+    # Add the custom hoarding periods remaining sensor
+    entities.append(AmpsterHoardingPeriodsRemainingSensor(hass, coordinator)) # Pass coordinator
+    
     async_add_entities(entities)
 
 class AmpsterSensor(SensorEntity):
@@ -35,6 +40,11 @@ class AmpsterSensor(SensorEntity):
             else:
                 self._attr_native_value = str(value)[:255]
         self._attr_extra_state_attributes = {"full_value": value} if isinstance(value, (dict, list)) else {}
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return self.coordinator.last_update_success
 
     @property
     def native_value(self):
@@ -58,15 +68,29 @@ class AmpsterSensor(SensorEntity):
 class AmpsterHoardingPeriodsRemainingSensor(SensorEntity):
     _attr_name = "Ampster Hoarding Periods Remaining"
     _attr_unique_id = "ampster_hoarding_periods_remaining"
+    # Ensure the sensor is tied to the coordinator for updates and availability
+    _attr_should_poll = False # Data will come from coordinator
 
-    def __init__(self, hass):
+    def __init__(self, hass, coordinator): # Add coordinator
         self.hass = hass
+        self.coordinator = coordinator # Store coordinator instance
+        self._attr_device_info = coordinator.device_info # Link to coordinator's device
+
+    async def async_added_to_hass(self) -> None:
+        """Connect to coordinator for updates."""
+        self.async_on_remove(
+            self.coordinator.async_add_listener(self.async_write_ha_state)
+        )
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return self.coordinator.last_update_success
 
     async def async_update(self):
         from .automation import calculate_hoarding_periods_remaining
+        # Make sure to pass hass to the calculation function if it needs it
+        # and potentially other data from the coordinator if required
         self._attr_native_value = await calculate_hoarding_periods_remaining(self.hass)
-
-async def async_setup_entry(hass, entry, async_add_entities):
-    async_add_entities([AmpsterHoardingPeriodsRemainingSensor(hass)])
 
 # To disable exposing sensors, remove or comment out this file and its setup in __init__.py

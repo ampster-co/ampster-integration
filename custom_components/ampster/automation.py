@@ -10,6 +10,8 @@ This automation is triggered whenever new data is fetched (on the hour at the co
 """
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+import datetime
+import json
 import logging
 
 from .const import DOMAIN
@@ -31,7 +33,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             current_period = data.get("current_period")
             _LOGGER.info(f"[Ampster] Data fetched. Timestamp: {timestamp}, Country: {country}, Current Period: {current_period}")
 
-            import datetime
             # Use cached timezone objects to avoid blocking the event loop
             tz = COUNTRY_TZ.get(country, DEFAULT_TZ)
 
@@ -59,3 +60,86 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     # Call once at startup to fetch/process data immediately
     await handle_data_update()
+
+async def categorise(hass, in_price):
+    """Replicates the Jinja categorise macro in Python."""
+    try:
+        price = float(in_price)
+    except (TypeError, ValueError):
+        return "Average"
+
+    def get_input_number(name):
+        entity = hass.states.get(f"input_number.{name}")
+        return float(entity.state) if entity and entity.state not in (None, "", "unknown", "unavailable") else None
+
+    negative = get_input_number("negative")
+    very_low = get_input_number("very_low")
+    low = get_input_number("low")
+    high = get_input_number("high")
+    very_high = get_input_number("very_high")
+
+    if negative is not None and price < negative:
+        return "Negative"
+    elif very_low is not None and price < very_low:
+        return "Very Low"
+    elif low is not None and price < low:
+        return "Low"
+    elif very_high is not None and price > very_high:
+        return "Very High"
+    elif high is not None and price > high:
+        return "High"
+    else:
+        return "Average"
+
+async def calculate_hoarding_periods_remaining(hass):
+    """Calculate hoarding periods remaining."""
+    # Get current_period as float
+    current_hour_attr = hass.states.get("sensor.price_datafeed_12")
+    if not current_hour_attr:
+        return None
+    current_period_str = current_hour_attr.attributes.get("current_hour", "")
+    if len(current_period_str) < 13:
+        return None
+    try:
+        current_period = float(current_period_str[11:13])
+    except Exception:
+        return None
+
+    # Get period_prices as dict
+    period_prices_raw = hass.states.get("sensor.hourly_prices_next_12")
+    if not period_prices_raw:
+        return None
+    period_prices_json = period_prices_raw.state.replace("'", '"')
+    try:
+        period_prices = json.loads(period_prices_json)
+    except Exception:
+        return None
+
+    ns_hour = -1
+    for i in range(12):
+        hour = round(i + current_period)
+        if hour > 23:
+            hour = hour - 24
+        price_key = f"{hour:02d}:00"
+        cat = await categorise(hass, period_prices.get(price_key))
+        if hour > 12 and "High" in cat:
+            ns_hour = hour
+            break
+
+    if ns_hour < 0:
+        max_12_period = hass.states.get("sensor.max_12_period")
+        if max_12_period:
+            ns_hour = max_12_period.state[10:16]
+        else:
+            ns_hour = None
+    else:
+        ns_hour = ns_hour - current_period
+        now = datetime.datetime.now()
+        if ns_hour > 0:
+            ns_hour = ns_hour - (now.minute / 60)
+    if ns_hour is not None:
+        try:
+            ns_hour = round(float(ns_hour), 1)
+        except Exception:
+            pass
+    return ns_hour

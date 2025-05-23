@@ -55,4 +55,18 @@ class AmpsterSensor(SensorEntity):
             return {"full_value": value}
         return {}
 
+class AmpsterHoardingPeriodsRemainingSensor(SensorEntity):
+    _attr_name = "Ampster Hoarding Periods Remaining"
+    _attr_unique_id = "ampster_hoarding_periods_remaining"
+
+    def __init__(self, hass):
+        self.hass = hass
+
+    async def async_update(self):
+        from .automation import calculate_hoarding_periods_remaining
+        self._attr_native_value = await calculate_hoarding_periods_remaining(self.hass)
+
+async def async_setup_entry(hass, entry, async_add_entities):
+    async_add_entities([AmpsterHoardingPeriodsRemainingSensor(hass)])
+
 # To disable exposing sensors, remove or comment out this file and its setup in __init__.py

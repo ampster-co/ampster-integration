@@ -68,13 +68,17 @@ class AmpsterSensor(SensorEntity):
 class AmpsterHoardingPeriodsRemainingSensor(SensorEntity):
     _attr_name = "Ampster Hoarding Periods Remaining"
     _attr_unique_id = "ampster_hoarding_periods_remaining"
-    # Ensure the sensor is tied to the coordinator for updates and availability
-    _attr_should_poll = False # Data will come from coordinator
+    _attr_should_poll = False
 
-    def __init__(self, hass, coordinator): # Add coordinator
+    def __init__(self, hass, coordinator):
         self.hass = hass
-        self.coordinator = coordinator # Store coordinator instance
-        self._attr_device_info = coordinator.device_info # Link to coordinator's device
+        self.coordinator = coordinator
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, coordinator.country_prefix)},
+            "name": "Ampster",
+            "manufacturer": "Ampster",
+            "entry_type": "service",
+        }
 
     async def async_added_to_hass(self) -> None:
         """Connect to coordinator for updates."""

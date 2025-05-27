@@ -221,15 +221,13 @@ entities:
 
 ## Branding (Logo & Icon)
 
-To add custom branding to your integration in the Home Assistant UI:
-- Place your images in the `.branding/` directory in this integration folder.
-- Required files:
-  - `logo.png` (recommended size: 256x256 px, transparent background)
-  - `icon.png` (recommended size: 32x32 px, transparent background)
-- Home Assistant will use these images in the integrations list and on the integration card.
-- For more details, see: https://developers.home-assistant.io/docs/integration_custom_branding/
+To add custom branding to your integration in the Home Assistant UI, you must submit your branding assets to the official Home Assistant Brands repository. The `.branding/` directory is not used for custom integration branding.
 
-If these images are not provided, Home Assistant will display a default puzzle piece icon for your integration.
+> **Note:** The initial branding for this integration was submitted in [home-assistant/brands#7121](https://github.com/home-assistant/brands/pull/7121).
+
+For more details, see: https://developers.home-assistant.io/docs/integration_custom_branding/
+
+If these images are not provided in the Brands repository, Home Assistant will display a default puzzle piece icon for your integration.
 
 ## Automating Commit, Tag, and GitHub Release from the CLI
 
@@ -394,7 +392,7 @@ This will execute all test files in the `tests/` directory.
 
 To have your integration's logo and icon appear in the Home Assistant user interface (e.g., in the integrations list and on the integration card), you need to submit your branding assets to the official Home Assistant Brands repository.
 
-The `.branding/` folder method within the custom component directory is **not** used for custom integration branding.
+> **Note:** The initial branding for this integration was submitted in [home-assistant/brands#7121](https://github.com/home-assistant/brands/pull/7121).
 
 ### Process for Submitting Branding:
 

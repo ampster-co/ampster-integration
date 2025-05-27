@@ -5,6 +5,7 @@
 pytest
 pytest-asyncio
 aiohttp
+requests
 # Home Assistant stubs for type checking and some tests (optional, not always available on PyPI)
 # If you get an error, comment out the line below or use 'pip install homeassistant' for latest available
 # homeassistant

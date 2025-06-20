@@ -45,8 +45,11 @@ class AmpsterDataUploader:
     
     async def _async_upload_data(self, now=None):
         """Upload sensor data to remote server."""
+        _LOGGER.info(f"[Ampster] _async_upload_data called with now={now}")
+        
         if not self.upload_url or not self.api_key or not self.upload_sensors:
             _LOGGER.warning("[Ampster] Upload skipped - missing configuration")
+            _LOGGER.debug(f"[Ampster] Config check: url={bool(self.upload_url)}, key={bool(self.api_key)}, sensors={bool(self.upload_sensors)}")
             return
             
         try:
@@ -110,5 +113,9 @@ class AmpsterDataUploader:
     
     async def async_upload_now(self):
         """Manually trigger an upload now."""
-        _LOGGER.info("[Ampster] Manual upload triggered")
-        await self._async_upload_data()
+        _LOGGER.info("[Ampster] Manual upload triggered via async_upload_now()")
+        try:
+            await self._async_upload_data()
+            _LOGGER.info("[Ampster] Manual upload completed")
+        except Exception as e:
+            _LOGGER.error(f"[Ampster] Manual upload failed: {e}", exc_info=True)

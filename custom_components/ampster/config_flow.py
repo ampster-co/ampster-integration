@@ -1,7 +1,10 @@
 """Config flow for Ampster integration."""
 from homeassistant import config_entries
 from homeassistant.core import callback
-from .const import DOMAIN, DEFAULT_COUNTRY, DEFAULT_MINUTE, DEFAULT_BASE_URL, SUPPORTED_COUNTRIES
+from .const import (
+    DOMAIN, DEFAULT_COUNTRY, DEFAULT_MINUTE, DEFAULT_BASE_URL, SUPPORTED_COUNTRIES,
+    DEFAULT_UPLOAD_URL, DEFAULT_UPLOAD_INTERVAL, DEFAULT_UPLOAD_SENSORS, DEFAULT_API_KEY
+)
 
 class AmpsterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Ampster."""
@@ -29,9 +32,20 @@ class AmpsterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         current_country = entry.data.get("country_prefix", DEFAULT_COUNTRY)
         current_minute = entry.data.get("minute", DEFAULT_MINUTE)
         current_base_url = entry.data.get("base_url", DEFAULT_BASE_URL)
+        current_upload_url = entry.options.get("upload_url", entry.data.get("upload_url", DEFAULT_UPLOAD_URL))
+        current_api_key = entry.options.get("api_key", entry.data.get("api_key", DEFAULT_API_KEY))
+        current_upload_sensors = entry.options.get("upload_sensors", entry.data.get("upload_sensors", DEFAULT_UPLOAD_SENSORS))
+        current_upload_interval = entry.options.get("upload_interval", entry.data.get("upload_interval", DEFAULT_UPLOAD_INTERVAL))
         return self.async_show_form(
             step_id="options",
-            data_schema=self._get_schema(minute=current_minute, base_url=current_base_url),
+            data_schema=self._get_schema(
+                minute=current_minute, 
+                base_url=current_base_url,
+                upload_url=current_upload_url,
+                api_key=current_api_key,
+                upload_sensors=current_upload_sensors,
+                upload_interval=current_upload_interval
+            ),
             errors=errors,
             description_placeholders={
                 "title": "Ampster Home Integration Options"
@@ -39,7 +53,8 @@ class AmpsterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     @callback
-    def _get_schema(self, minute=DEFAULT_MINUTE, base_url=DEFAULT_BASE_URL):
+    def _get_schema(self, minute=DEFAULT_MINUTE, base_url=DEFAULT_BASE_URL, upload_url=DEFAULT_UPLOAD_URL, 
+                   api_key=DEFAULT_API_KEY, upload_sensors=DEFAULT_UPLOAD_SENSORS, upload_interval=DEFAULT_UPLOAD_INTERVAL):
         from homeassistant.helpers import config_validation as cv
         import voluptuous as vol
         # Guess country prefix from locale
@@ -57,6 +72,10 @@ class AmpsterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Required("country_prefix", default=guessed_prefix): vol.In(country_options),
             vol.Required("minute", default=minute): vol.All(vol.Coerce(int), vol.Range(min=0, max=59)),
             vol.Required("base_url", default=base_url): str,
+            vol.Optional("upload_url", default=upload_url): str,
+            vol.Optional("api_key", default=api_key): str,
+            vol.Optional("upload_sensors", default=upload_sensors): str,
+            vol.Optional("upload_interval", default=upload_interval): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
         })
 
     @staticmethod
@@ -79,6 +98,10 @@ class AmpsterOptionsFlowHandler(config_entries.OptionsFlow):
         current_country = self.config_entry.options.get("country_prefix", self.config_entry.data.get("country_prefix", DEFAULT_COUNTRY))
         current_minute = self.config_entry.options.get("minute", self.config_entry.data.get("minute", DEFAULT_MINUTE))
         current_base_url = self.config_entry.options.get("base_url", self.config_entry.data.get("base_url", DEFAULT_BASE_URL))
+        current_upload_url = self.config_entry.options.get("upload_url", self.config_entry.data.get("upload_url", DEFAULT_UPLOAD_URL))
+        current_api_key = self.config_entry.options.get("api_key", self.config_entry.data.get("api_key", DEFAULT_API_KEY))
+        current_upload_sensors = self.config_entry.options.get("upload_sensors", self.config_entry.data.get("upload_sensors", DEFAULT_UPLOAD_SENSORS))
+        current_upload_interval = self.config_entry.options.get("upload_interval", self.config_entry.data.get("upload_interval", DEFAULT_UPLOAD_INTERVAL))
         from homeassistant.helpers import config_validation as cv
         import voluptuous as vol
         country_options = SUPPORTED_COUNTRIES
@@ -88,6 +111,10 @@ class AmpsterOptionsFlowHandler(config_entries.OptionsFlow):
                 vol.Required("country_prefix", default=current_country): vol.In(country_options),
                 vol.Required("minute", default=current_minute): vol.All(vol.Coerce(int), vol.Range(min=0, max=59)),
                 vol.Required("base_url", default=current_base_url): str,
+                vol.Optional("upload_url", default=current_upload_url): str,
+                vol.Optional("api_key", default=current_api_key): str,
+                vol.Optional("upload_sensors", default=current_upload_sensors): str,
+                vol.Optional("upload_interval", default=current_upload_interval): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
             }),
             errors=errors,
             description_placeholders={

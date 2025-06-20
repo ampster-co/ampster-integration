@@ -3,13 +3,31 @@
   "options": {
     "step": {
       "init": {
-        "title": "Ampster Home Integratie Opties"
+        "title": "Ampster Home Integratie Opties",
+        "data": {
+          "country_prefix": "Land",
+          "minute": "Minuut na het uur om data op te halen",
+          "base_url": "Basis URL voor data ophalen",
+          "upload_url": "Upload URL voor externe data posting",
+          "api_key": "API Sleutel voor externe server",
+          "upload_sensors": "Sensor namen om te uploaden (komma gescheiden)",
+          "upload_interval": "Upload interval (minuten)"
+        }
       }
     }
   },
   "step": {
     "user": {
-      "title": "Ampster Home Integratie"
+      "title": "Ampster Home Integratie",
+      "data": {
+        "country_prefix": "Land",
+        "minute": "Minuut na het uur om data op te halen",
+        "base_url": "Basis URL voor data ophalen",
+        "upload_url": "Upload URL voor externe data posting",
+        "api_key": "API Sleutel voor externe server",
+        "upload_sensors": "Sensor namen om te uploaden (komma gescheiden)",
+        "upload_interval": "Upload interval (minuten)"
+      }
     }
   },
   "config": {

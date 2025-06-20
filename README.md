@@ -1,14 +1,24 @@
 # Ampster Home Assistant Custom Integration
 
 ## Overview
-This custom integration fetches electricity price data for a selected country from a remote server (Ampster S3 bucket) and exposes it in Home Assistant. It also provides automation logic to control devices (e.g., an inverter) based on the fetched data, and includes a manual update button.
+This custom integration fetches electricity price data for a selected country from a remote server (Ampster S3 bucket) and exposes it in Home Assistant. It also provides automation logic to control devices (e.g., an inverter) based on the fetched data, includes manual update buttons, and can upload sensor data to a remote server.
+
+## Features
+- **Data Fetching**: Periodic fetching of electricity price data from Ampster S3 bucket
+- **Sensor Creation**: Automatic creation of Home Assistant sensors for each data field
+- **Manual Updates**: Button to manually trigger data refresh
+- **Data Upload**: Configurable periodic upload of sensor data to remote servers
+- **Manual Upload**: Button to manually trigger data upload
+- **Automation Logic**: Control devices based on fetched data
+- **Multi-language Support**: UI translations for multiple languages
 
 ## File Structure and Responsibilities
 
-- `__init__.py`: Main entry point. Sets up the integration, initializes the data coordinator, button, sensors, and automation logic.
+- `__init__.py`: Main entry point. Sets up the integration, initializes the data coordinator, uploader, buttons, sensors, and automation logic.
 - `coordinator.py`: Handles periodic fetching of the JSON data from the remote server, based on the country and minute selected in the config flow. Uses Home Assistant's DataUpdateCoordinator.
-- `config_flow.py`: Provides a UI for users to select their country and the minute past the hour to fetch data. Guesses the country from Home Assistant's locale but allows override.
-- `button.py`: Exposes a Home Assistant button entity that lets users manually trigger a data fetch from the UI.
+- `uploader.py`: Handles periodic uploading of sensor data to a remote server with configurable API endpoint and authentication.
+- `config_flow.py`: Provides a UI for users to configure data fetching and upload settings. Includes country selection, timing, URLs, API keys, and sensor selection.
+- `button.py`: Exposes Home Assistant button entities for manual data fetch and upload triggers.
 - `sensor.py`: Exposes each top-level key in the fetched JSON as a Home Assistant sensor entity. (To disable, remove/comment out this file and its setup in `__init__.py`.)
 - `automation.py`: Contains logic to control devices based on the fetched data. Example: turns an inverter on/off depending on the current electricity price. (You can adapt this logic to your needs.)
 - `manifest.json`: Metadata and requirements for the integration (e.g., dependencies like `aiohttp`).
@@ -23,10 +33,24 @@ This custom integration fetches electricity price data for a selected country fr
   To add more languages, create additional JSON files in this directory following the same structure.
 
 ## How It Works
-1. **Setup**: User installs the integration (see below). During setup, the user selects their country and the minute past the hour to fetch data.
+1. **Setup**: User installs the integration (see below). During setup, the user configures data fetching and optionally data uploading.
 2. **Data Fetching**: The coordinator fetches the relevant JSON file from the Ampster S3 bucket at the configured time (e.g., 2 minutes past every hour).
-3. **Entities**: The integration exposes sensors for each top-level key in the JSON, and a button to manually update the data.
-4. **Automation**: The integration can automatically control devices (e.g., turn on/off a switch) based on the fetched data. The example provided uses the current all-in price.
+3. **Entities**: The integration exposes sensors for each top-level key in the JSON, and buttons to manually update and upload data.
+4. **Data Upload**: If configured, the integration periodically uploads selected sensor data to a remote server using the specified API endpoint and authentication.
+5. **Automation**: The integration can automatically control devices (e.g., turn on/off a switch) based on the fetched data. The example provided uses the current all-in price.
+
+## Configuration Options
+
+### Data Fetching Configuration
+- **Country**: Select the country for electricity price data (NL, FR, BE, AT)
+- **Minute**: Minute past the hour to fetch data (0-59)
+- **Base URL**: Base URL for fetching electricity price data
+
+### Data Upload Configuration (Optional)
+- **Upload URL**: API endpoint for uploading sensor data (default: https://yv3l9alv8g.execute-api.us-east-1.amazonaws.com/prod/data)
+- **API Key**: Authentication key for the upload endpoint
+- **Upload Sensors**: Comma-separated list of sensor names to upload (e.g., "country,current_period_all_in_price,static_42")
+- **Upload Interval**: How often to upload data in minutes (1-1440, default: 15)
 
 ## Installation Instructions
 
@@ -218,6 +242,58 @@ entities:
 
 - **User Configuration**:
   - During setup, users can select their country and the minute past the hour to fetch data. These settings are stored in the integration's config entry and used by the coordinator.
+
+## Data Upload Functionality
+
+The integration includes optional functionality to upload sensor data to a remote server. This feature is useful for data analytics, monitoring, or integration with external systems.
+
+### Upload Configuration
+
+Configure the following settings in the integration options:
+
+- **Upload URL**: The API endpoint where data will be posted (default: https://yv3l9alv8g.execute-api.us-east-1.amazonaws.com/prod/data)
+- **API Key**: Authentication key sent as `X-API-Key` header
+- **Upload Sensors**: Comma-separated list of sensor names to upload. You can use:
+  - Short names like `country`, `static_42`
+  - Full entity IDs like `sensor.ampster_country`
+  - Names with `ampster_` prefix like `ampster_country`
+- **Upload Interval**: How often to upload data (1-1440 minutes, default: 15)
+
+### Data Format
+
+The integration uploads data in JSON format:
+
+```json
+{
+  "timestamp": "2025-06-20T10:15:00.123456",
+  "sensors": {
+    "country": {
+      "value": "NL",
+      "attributes": {}
+    },
+    "current_period_all_in_price": {
+      "value": "0.25",
+      "attributes": {
+        "unit_of_measurement": "€/kWh"
+      }
+    }
+  }
+}
+```
+
+### Manual Upload
+
+Use the "Ampster: Upload Now" button entity to manually trigger an upload outside the scheduled interval.
+
+### Testing Upload
+
+Use the included test script to verify your upload endpoint:
+
+```bash
+python scripts/test_upload.py
+```
+
+Update the script with your API key and endpoint URL before running.
 
 ## Branding (Logo & Icon)
 

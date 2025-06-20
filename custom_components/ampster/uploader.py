@@ -1,0 +1,102 @@
+"""
+Data uploader for Ampster integration.
+Handles posting sensor data to remote server on a schedule.
+"""
+import logging
+import asyncio
+import aiohttp
+from datetime import datetime, timedelta
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.event import async_track_time_interval
+
+_LOGGER = logging.getLogger(__name__)
+
+class AmpsterDataUploader:
+    """Handles uploading sensor data to remote server."""
+    
+    def __init__(self, hass: HomeAssistant, upload_url: str, api_key: str, 
+                 upload_sensors: str, upload_interval: int):
+        self.hass = hass
+        self.upload_url = upload_url
+        self.api_key = api_key
+        self.upload_sensors = [s.strip() for s in upload_sensors.split(",") if s.strip()]
+        self.upload_interval = upload_interval
+        self._unsub_timer = None
+        
+    async def async_start(self):
+        """Start the periodic upload timer."""
+        if self.upload_url and self.api_key and self.upload_sensors:
+            interval = timedelta(minutes=self.upload_interval)
+            self._unsub_timer = async_track_time_interval(
+                self.hass,
+                self._async_upload_data,
+                interval
+            )
+            _LOGGER.info(f"[Ampster] Data uploader started - will upload every {self.upload_interval} minutes")
+        else:
+            _LOGGER.info("[Ampster] Data uploader not started - missing configuration")
+    
+    async def async_stop(self):
+        """Stop the periodic upload timer."""
+        if self._unsub_timer:
+            self._unsub_timer()
+            self._unsub_timer = None
+            _LOGGER.info("[Ampster] Data uploader stopped")
+    
+    async def _async_upload_data(self, now=None):
+        """Upload sensor data to remote server."""
+        if not self.upload_url or not self.api_key or not self.upload_sensors:
+            _LOGGER.warning("[Ampster] Upload skipped - missing configuration")
+            return
+            
+        try:
+            # Collect sensor data
+            data = {
+                "timestamp": datetime.now().isoformat(),
+                "sensors": {}
+            }
+            
+            for sensor_name in self.upload_sensors:
+                # Try to find the sensor with different prefixes
+                entity_id = None
+                if sensor_name.startswith("sensor."):
+                    entity_id = sensor_name
+                elif sensor_name.startswith("ampster_"):
+                    entity_id = f"sensor.{sensor_name}"
+                else:
+                    entity_id = f"sensor.ampster_{sensor_name}"
+                
+                state = self.hass.states.get(entity_id)
+                if state:
+                    data["sensors"][sensor_name] = {
+                        "value": state.state,
+                        "attributes": dict(state.attributes)
+                    }
+                else:
+                    _LOGGER.warning(f"[Ampster] Sensor {entity_id} not found for upload")
+            
+            if not data["sensors"]:
+                _LOGGER.warning("[Ampster] No sensor data found to upload")
+                return
+            
+            # Upload data
+            headers = {
+                "X-API-Key": self.api_key,
+                "Content-Type": "application/json"
+            }
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(self.upload_url, json=data, headers=headers) as response:
+                    if response.status == 200:
+                        _LOGGER.info(f"[Ampster] Successfully uploaded data for {len(data['sensors'])} sensors")
+                    else:
+                        response_text = await response.text()
+                        _LOGGER.error(f"[Ampster] Upload failed with status {response.status}: {response_text}")
+                        
+        except Exception as e:
+            _LOGGER.error(f"[Ampster] Upload failed with exception: {e}")
+    
+    async def async_upload_now(self):
+        """Manually trigger an upload now."""
+        _LOGGER.info("[Ampster] Manual upload triggered")
+        await self._async_upload_data()

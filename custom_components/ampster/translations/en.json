@@ -3,13 +3,31 @@
   "options": {
     "step": {
       "init": {
-        "title": "Ampster Home Integration Options"
+        "title": "Ampster Home Integration Options",
+        "data": {
+          "country_prefix": "Country",
+          "minute": "Minute past hour to fetch data",
+          "base_url": "Base URL for data fetching",
+          "upload_url": "Upload URL for remote data posting",
+          "api_key": "API Key for remote server",
+          "upload_sensors": "Sensor names to upload (comma separated)",
+          "upload_interval": "Upload interval (minutes)"
+        }
       }
     }
   },
   "step": {
     "user": {
-      "title": "Ampster Home Integration"
+      "title": "Ampster Home Integration",
+      "data": {
+        "country_prefix": "Country",
+        "minute": "Minute past hour to fetch data",
+        "base_url": "Base URL for data fetching",
+        "upload_url": "Upload URL for remote data posting",
+        "api_key": "API Key for remote server",
+        "upload_sensors": "Sensor names to upload (comma separated)",
+        "upload_interval": "Upload interval (minutes)"
+      }
     }
   },
   "config": {

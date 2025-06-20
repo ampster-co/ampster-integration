@@ -253,10 +253,10 @@ Configure the following settings in the integration options:
 
 - **Upload URL**: The API endpoint where data will be posted (default: https://yv3l9alv8g.execute-api.us-east-1.amazonaws.com/prod/data)
 - **API Key**: Authentication key sent as `X-API-Key` header
-- **Upload Sensors**: Comma-separated list of sensor names to upload. You can use:
-  - Short names like `country`, `static_42`
-  - Full entity IDs like `sensor.ampster_country`
-  - Names with `ampster_` prefix like `ampster_country`
+- **Upload Sensors**: Comma-separated list of entity names to upload. Supports flexible naming:
+  - Full entity IDs: `sensor.ampster_country`, `sensor.temperature`, `switch.inverter`
+  - Short names: `country`, `static_42` (will try `sensor.country`, then `sensor.ampster_country`)
+  - Any Home Assistant entity: `light.living_room`, `binary_sensor.door`
 - **Upload Interval**: How often to upload data (1-1440 minutes, default: 15)
 
 ### Data Format

@@ -26,6 +26,12 @@ class AmpsterUpdateNowButton(ButtonEntity):
 
     def __init__(self, coordinator):
         self.coordinator = coordinator
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, coordinator.country_prefix)},
+            "name": "Ampster",
+            "manufacturer": "Ampster",
+            "entry_type": "service",
+        }
 
     async def async_press(self) -> None:
         await self.coordinator.async_request_refresh()
@@ -36,6 +42,12 @@ class AmpsterUploadNowButton(ButtonEntity):
 
     def __init__(self, uploader):
         self.uploader = uploader
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, "ampster_uploader")},
+            "name": "Ampster",
+            "manufacturer": "Ampster",
+            "entry_type": "service",
+        }
 
     async def async_press(self) -> None:
         await self.uploader.async_upload_now()

@@ -57,23 +57,35 @@ class AmpsterDataUploader:
             }
             
             for sensor_name in self.upload_sensors:
-                # Try to find the sensor with different prefixes
+                # Try to find the sensor with different approaches
                 entity_id = None
-                if sensor_name.startswith("sensor."):
-                    entity_id = sensor_name
-                elif sensor_name.startswith("ampster_"):
-                    entity_id = f"sensor.{sensor_name}"
-                else:
-                    entity_id = f"sensor.ampster_{sensor_name}"
+                state = None
                 
-                state = self.hass.states.get(entity_id)
+                if sensor_name.startswith("sensor."):
+                    # Full entity ID provided
+                    entity_id = sensor_name
+                    state = self.hass.states.get(entity_id)
+                else:
+                    # Try different prefixes in order
+                    candidates = [
+                        sensor_name,  # Try as-is first (for non-sensor entities)
+                        f"sensor.{sensor_name}",  # Try with sensor. prefix
+                        f"sensor.ampster_{sensor_name}",  # Try with ampster_ prefix
+                    ]
+                    
+                    for candidate in candidates:
+                        state = self.hass.states.get(candidate)
+                        if state:
+                            entity_id = candidate
+                            break
+                
                 if state:
                     data["sensors"][sensor_name] = {
                         "value": state.state,
                         "attributes": dict(state.attributes)
                     }
                 else:
-                    _LOGGER.warning(f"[Ampster] Sensor {entity_id} not found for upload")
+                    _LOGGER.warning(f"[Ampster] Entity '{sensor_name}' not found for upload (tried: {', '.join([sensor_name, f'sensor.{sensor_name}', f'sensor.ampster_{sensor_name}'])})")
             
             if not data["sensors"]:
                 _LOGGER.warning("[Ampster] No sensor data found to upload")

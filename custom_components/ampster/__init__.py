@@ -42,6 +42,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         uploader = AmpsterDataUploader(hass, upload_url, api_key, upload_sensors, upload_interval)
         await uploader.async_start()
         hass.data[DOMAIN][f"{entry.entry_id}_uploader"] = uploader
+    else:
+        # Log why uploader wasn't created for debugging
+        missing = []
+        if not upload_url: missing.append("upload_url")
+        if not api_key: missing.append("api_key") 
+        if not upload_sensors: missing.append("upload_sensors")
+        if missing:
+            import logging
+            _LOGGER = logging.getLogger(__name__)
+            _LOGGER.info(f"[Ampster] Data uploader not configured - missing: {', '.join(missing)}")
+        else:
+            import logging
+            _LOGGER = logging.getLogger(__name__)
+            _LOGGER.info("[Ampster] Data uploader not configured - all fields empty")
     
     # Use standard platform forwarding for button and sensor only
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

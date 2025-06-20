@@ -54,6 +54,7 @@ class AmpsterDataUploader:
             
         try:
             # Collect sensor data
+            _LOGGER.info(f"[Ampster] Starting data collection for sensors: {self.upload_sensors}")
             data = {
                 "timestamp": datetime.now().isoformat(),
                 "sensors": {}
@@ -94,22 +95,33 @@ class AmpsterDataUploader:
                 _LOGGER.warning("[Ampster] No sensor data found to upload")
                 return
             
+            _LOGGER.info(f"[Ampster] Collected data for {len(data['sensors'])} sensors: {list(data['sensors'].keys())}")
+            
             # Upload data
             headers = {
                 "X-API-Key": self.api_key,
                 "Content-Type": "application/json"
             }
             
+            _LOGGER.info(f"[Ampster] Making HTTP POST to: {self.upload_url}")
+            _LOGGER.debug(f"[Ampster] Request headers: {headers}")
+            _LOGGER.debug(f"[Ampster] Request payload: {data}")
+            
             async with aiohttp.ClientSession() as session:
                 async with session.post(self.upload_url, json=data, headers=headers) as response:
+                    _LOGGER.info(f"[Ampster] HTTP Response status: {response.status}")
+                    _LOGGER.debug(f"[Ampster] Response headers: {dict(response.headers)}")
+                    
+                    response_text = await response.text()
+                    _LOGGER.debug(f"[Ampster] Response body: {response_text}")
+                    
                     if response.status == 200:
                         _LOGGER.info(f"[Ampster] Successfully uploaded data for {len(data['sensors'])} sensors")
                     else:
-                        response_text = await response.text()
                         _LOGGER.error(f"[Ampster] Upload failed with status {response.status}: {response_text}")
                         
         except Exception as e:
-            _LOGGER.error(f"[Ampster] Upload failed with exception: {e}")
+            _LOGGER.error(f"[Ampster] Upload failed with exception: {e}", exc_info=True)
     
     async def async_upload_now(self):
         """Manually trigger an upload now."""

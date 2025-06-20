@@ -50,7 +50,7 @@ async def test_uploader():
     
     # Configure uploader
     upload_url = "https://yv3l9alv8g.execute-api.us-east-1.amazonaws.com/prod/data"
-    api_key = "test-api-key"
+    api_key = ""
     upload_sensors = "static_42,test_sensor"
     upload_interval = 15
     
